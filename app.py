@@ -42,7 +42,7 @@ def add_url():
     key = calc_key(url.encode())
     if get_url(key) is None:
         supabase.table("urls").insert({"key": key, "url": url}).execute()
-    return render_template("shortened_url.html", shortened_url=f"sml.vercel.app/{key}")
+    return render_template("shortened_url.html", shortened_url=f"https://sml-five.vercel.app/{key}")
 
 
 @app.get("/")
