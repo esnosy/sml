@@ -3,7 +3,7 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request
+from flask import Flask, flash, redirect, render_template, request, url_for
 from supabase import create_client
 
 load_dotenv(".env")
@@ -14,6 +14,12 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "")
+
+app.add_url_rule(
+    "/favicon.ico",
+    endpoint="favicon",
+    redirect_to=url_for("static", filename="favicon.ico"),
+)
 
 supabase = create_client(
     os.environ.get("SUPABASE_URL", ""), os.environ.get("SUPABASE_PUBLISHABLE_KEY", "")
