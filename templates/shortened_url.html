@@ -6,41 +6,7 @@
         <a class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
             type="text" placeholder="Your long URL" aria-label="Your long URL" name="url" id="url"
             href="{{ shortened_url }}">{{ shortened_url }}</a>
-        <button onclick="copyURL()"
-            class="flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded">
-            Copy
-        </button>
     </div>
     <h1 id="clipboard-status"></h1>
 </div>
-<script>
-    function copyURL() {
-        const input = document.getElementById("url");
-        const status = document.getElementById("clipboard-status");
-
-        // Modern Clipboard API (asynchronous)
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(input.value)
-                .then(() => {
-                    status.textContent = "✅ URL copied!";
-                })
-                .catch(err => {
-                    console.error("Clipboard API failed:", err);
-                    status.textContent = "❌ Failed to copy.";
-                });
-        } else {
-            // Fallback for older browsers
-            input.select();
-            input.setSelectionRange(0, input.value.length); // For mobile devices
-            try {
-                const successful = document.execCommand('copy');
-                status.textContent = successful ? "✅ URL copied!" : "❌ Failed to copy.";
-            } catch (err) {
-                console.error("Fallback copy failed:", err);
-                status.textContent = "❌ Failed to copy.";
-            }
-            window.getSelection().removeAllRanges(); // Deselect text
-        }
-    }
-</script>
 {% endblock %}
