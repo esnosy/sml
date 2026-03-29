@@ -60,6 +60,7 @@ def homepage():
 @app.get("/<key>")
 def redirect_to_page(key: str):
     url = get_url(key)
+    logger.info(repr(url))
     if url is None:
         flash("URL doesn't exist")
         return redirect("/")
