@@ -1,7 +1,6 @@
 import hashlib
-import os
-from urllib.parse import urlparse, urlunparse
 import logging
+import os
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request
@@ -36,17 +35,14 @@ def get_url(key: str):
 def add_url():
     url = request.form.get("url")
     if url is None:
-        flash("Please provide a URL")
-        return render_template("homepage.html", url=url)
-    parsed_url = urlparse(url)
-    if parsed_url.scheme not in ("http", "https", ""):
-        flash("Invalid URL, only http, https, and empty scheme are allowed")
-        return render_template("homepage.html", url=url)
-    if parsed_url.scheme == "":
-        url = "https://" + url
-    key = calc_key(url.encode())
-    if get_url(key) is None:
+        flash("Please enter a URL")
+        return redirect("/")
+    keys = supabase.table("urls").select("key").eq("url", url).execute().data
+    if len(keys) == 0:
+        key = calc_key(url.encode())
         supabase.table("urls").insert({"key": key, "url": url}).execute()
+    else:
+        key = keys[0]["key"]  # type: ignore
     return render_template(
         "shortened_url.html", shortened_url=f"https://sml-five.vercel.app/{key}"
     )
