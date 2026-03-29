@@ -38,11 +38,12 @@ def add_url():
     if url is None:
         flash("Please provide a URL")
         return render_template("homepage.html", url=url)
-    parsed_url = urlparse(url, scheme="https")
-    if parsed_url.scheme not in ("http", "https"):
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in ("http", "https", ""):
         flash("Invalid URL, only http, https, and empty scheme are allowed")
         return render_template("homepage.html", url=url)
-    url = urlunparse(parsed_url)
+    if parsed_url.scheme == "":
+        url = "https://" + url
     key = calc_key(url.encode())
     if get_url(key) is None:
         supabase.table("urls").insert({"key": key, "url": url}).execute()
