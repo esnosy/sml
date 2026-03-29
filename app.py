@@ -1,12 +1,16 @@
 import hashlib
 import os
 from urllib.parse import urlparse, urlunparse
+import logging
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request
 from supabase import create_client
 
 load_dotenv(".env")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 app = Flask(__name__)
@@ -25,6 +29,7 @@ def get_url(key: str):
     urls = supabase.table("urls").select("url").eq("key", key).execute().data
     if len(urls) == 0:
         return None
+    logger.info(urls)
     return str(urls[0]["url"])  # type: ignore
 
 
@@ -42,7 +47,9 @@ def add_url():
     key = calc_key(url.encode())
     if get_url(key) is None:
         supabase.table("urls").insert({"key": key, "url": url}).execute()
-    return render_template("shortened_url.html", shortened_url=f"https://sml-five.vercel.app/{key}")
+    return render_template(
+        "shortened_url.html", shortened_url=f"https://sml-five.vercel.app/{key}"
+    )
 
 
 @app.get("/")
@@ -52,6 +59,7 @@ def homepage():
 
 @app.get("/<key>")
 def redirect_to_page(key: str):
+    logger.info(key)
     url = get_url(key)
     if url is None:
         flash("URL doesn't exist")
