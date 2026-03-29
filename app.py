@@ -29,7 +29,6 @@ def get_url(key: str):
     urls = supabase.table("urls").select("url").eq("key", key).execute().data
     if len(urls) == 0:
         return None
-    logger.info(urls)
     return str(urls[0]["url"])  # type: ignore
 
 
@@ -59,7 +58,6 @@ def homepage():
 
 @app.get("/<key>")
 def redirect_to_page(key: str):
-    logger.info(key)
     url = get_url(key)
     if url is None:
         flash("URL doesn't exist")
