@@ -77,7 +77,7 @@ def redirect_to_page(key: str):
     if url is None:
         flash("URL doesn't exist")
         return redirect("/")
-    return redirect(url)
+    return redirect(url, code=301)
 
 
 if __name__ == "__main__":
