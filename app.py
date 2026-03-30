@@ -1,7 +1,9 @@
 import hashlib
 import logging
 import os
+from urllib.parse import urlparse
 
+import validators
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
 from supabase import create_client
@@ -14,12 +16,6 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "")
-
-app.add_url_rule(
-    "/favicon.ico",
-    endpoint="favicon",
-    redirect_to=url_for("static", filename="favicon.ico"),
-)
 
 supabase = create_client(
     os.environ.get("SUPABASE_URL", ""), os.environ.get("SUPABASE_PUBLISHABLE_KEY", "")
@@ -37,12 +33,28 @@ def get_url(key: str):
     return str(urls[0]["url"])  # type: ignore
 
 
+def get_valid_url(url: str):
+    parsed_url = urlparse(url)
+    if parsed_url.scheme not in ("https", "http", ""):
+        return None
+    if parsed_url.netloc == "" and parsed_url.path == "":
+        return None
+    if parsed_url.scheme == "":
+        url = "https://" + url
+    if not validators.url(url):
+        return None
+    return url
+
+
 @app.post("/")
 def add_url():
-    url = request.form.get("url")
-    if url is None:
-        flash("Please enter a URL")
-        return redirect("/")
+    url = request.form.get("url", "")
+    validated_url = get_valid_url(url)
+    if validated_url is None:
+        flash("Please provide a valid URL")
+        return render_template("homepage.html", url=url)
+    url = validated_url
+
     keys = supabase.table("urls").select("key").eq("url", url).execute().data
     if len(keys) == 0:
         key = calc_key(url.encode())
